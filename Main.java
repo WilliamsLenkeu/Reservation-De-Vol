@@ -342,24 +342,17 @@ public class Main{
             System.out.println("Aucun vol disponible pour la destination '" + destination + "' a la date '" + dateDepart + "'.");
         }
     }
-    
+
     private static void reserverVol(Scanner scanner) {
         System.out.println("==== Reservation d'un vol ====");
     
-        String numeroVol = "";
         String numeroPasseport = "";
+        String numeroVol = "";
     
         boolean champsValides = false;
     
         while (!champsValides) {
             try {
-                System.out.print("Numero de vol : ");
-                numeroVol = scanner.nextLine();
-    
-                if (numeroVol.isEmpty()) {
-                    throw new IllegalArgumentException("Le champ 'Numero de vol' ne peut pas etre vide.");
-                }
-    
                 System.out.print("Numero de passeport du passager : ");
                 numeroPasseport = scanner.nextLine();
     
@@ -373,12 +366,38 @@ public class Main{
             }
         }
     
-        Vol volSelectionne = null;
-        for (Vol vol : vols) {
-            if (vol.getNumeroVol().equals(numeroVol)) {
-                volSelectionne = vol;
-                break;
+        System.out.println("Liste des vols disponibles :");
+        for (int i = 0; i < vols.size(); i++) {
+            Vol vol = vols.get(i);
+            System.out.println((i + 1) + ": " + vol.getNumeroVol() + " - Destination: " + vol.getDestination() + ", heure de depart: " + vol.getHeureDepart());
+        }
+    
+        int choixVol = 0;
+        boolean volValide = false;
+    
+        while (!volValide) {
+            try {
+                System.out.print("Choisissez un numero de vol : ");
+                choixVol = Integer.parseInt(scanner.nextLine());
+    
+                if (choixVol < 1 || choixVol > vols.size()) {
+                    throw new IllegalArgumentException("Numero de vol invalide. Veuillez choisir un numero valide.");
+                }
+    
+                volValide = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Erreur : Veuillez entrer un nombre valide.");
+            } catch (IllegalArgumentException e) {
+                System.out.println("Erreur : " + e.getMessage());
             }
+        }
+    
+        Vol volSelectionne = null;
+        try {
+            volSelectionne = vols.get(choixVol - 1);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Le vol specifie n'existe pas. Verifiez le numero de vol choisi.");
+            return;
         }
     
         Passager passagerSelectionne = null;
@@ -389,8 +408,8 @@ public class Main{
             }
         }
     
-        if (volSelectionne == null || passagerSelectionne == null) {
-            System.out.println("Le vol ou le passager specifie n'existe pas. Verifiez les informations saisies.");
+        if (passagerSelectionne == null) {
+            System.out.println("Le passager specifie n'existe pas. Verifiez les informations saisies.");
         } else {
             if (volSelectionne.getPassagers().contains(passagerSelectionne)) {
                 System.out.println("Ce passager est deja enregistre sur ce vol.");
@@ -400,7 +419,7 @@ public class Main{
             }
         }
     }
-
+        
     private static void annulerReservation(Scanner scanner) {
         System.out.println("==== Annulation d'une reservation ====");
     
