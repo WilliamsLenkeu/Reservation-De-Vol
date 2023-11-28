@@ -288,7 +288,6 @@ public class Main{
         System.out.println("==== Recherche des vols disponibles ====");
     
         String destination = "";
-        String dateDepart = "";
     
         boolean champsValides = false;
     
@@ -298,51 +297,34 @@ public class Main{
                 destination = scanner.nextLine();
     
                 if (destination.isEmpty()) {
-                    throw new IllegalArgumentException("Le champ 'Destination' ne peut pas etre vide.");
-                }
-    
-                System.out.print("Date de depart (jj/mm/aaaa) : ");
-                dateDepart = scanner.nextLine();
-    
-                if (dateDepart.isEmpty()) {
-                    throw new IllegalArgumentException("Le champ 'Date de depart' ne peut pas etre vide.");
-                }
-    
-                if (!isValidDate(dateDepart)) {
-                    throw new IllegalArgumentException("Le format de la date est invalide. Veuillez utiliser le format 'jj/mm/aaaa'.");
-                }
-    
-                Date currentDate = new Date();
-                Date departDate = parseDate(dateDepart);
-    
-                if (departDate.compareTo(currentDate) <= 0) {
-                    throw new IllegalArgumentException("La date de depart doit etre ulterieure a la date actuelle.");
+                    throw new IllegalArgumentException("Le champ 'Destination' ne peut pas être vide.");
                 }
     
                 champsValides = true;
             } catch (IllegalArgumentException e) {
                 System.out.println("Erreur : " + e.getMessage());
             } catch (Exception e) {
-                System.out.println("Une erreur s'est produite lors de la validation de la date. Veuillez reessayer.");
+                System.out.println("Une erreur s'est produite lors de la saisie de la destination. Veuillez réessayer.");
             }
         }
     
-        System.out.println("Vols disponibles pour la destination '" + destination + "' a la date '" + dateDepart + "' :");
+        System.out.println("Vols disponibles pour la destination '" + destination + "' :");
         boolean found = false;
         for (Vol vol : vols) {
-            if (vol.getDestination().equalsIgnoreCase(destination) && vol.getDateDepart().equals(parseDate(dateDepart))) {
+            if (vol.getDestination().equalsIgnoreCase(destination)) {
                 System.out.println("Numero de vol : " + vol.getNumeroVol());
-                System.out.println("Compagnie aerienne : " + vol.getCompagnieAerienne());
-                System.out.println("Heure de depart : " + vol.getHeureDepart());
+                System.out.println("Compagnie aérienne : " + vol.getCompagnieAerienne());
+                System.out.println("Date de départ : " + formatDate(vol.getDateDepart()));
+                System.out.println("Heure de départ : " + vol.getHeureDepart());
                 System.out.println("--------------------");
                 found = true;
             }
         }
         if (!found) {
-            System.out.println("Aucun vol disponible pour la destination '" + destination + "' a la date '" + dateDepart + "'.");
+            System.out.println("Aucun vol disponible pour la destination '" + destination + "'.");
         }
     }
-
+    
     private static void reserverVol(Scanner scanner) {
         System.out.println("==== Reservation d'un vol ====");
     
