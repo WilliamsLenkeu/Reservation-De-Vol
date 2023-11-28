@@ -347,7 +347,6 @@ public class Main{
         System.out.println("==== Reservation d'un vol ====");
     
         String numeroPasseport = "";
-        String numeroVol = "";
     
         boolean champsValides = false;
     
@@ -422,42 +421,26 @@ public class Main{
         
     private static void annulerReservation(Scanner scanner) {
         System.out.println("==== Annulation d'une reservation ====");
-    
-        String numeroVol = "";
+
         String numeroPasseport = "";
-    
+
         boolean champsValides = false;
-    
+
         while (!champsValides) {
             try {
-                System.out.print("Numero de vol : ");
-                numeroVol = scanner.nextLine();
-    
-                if (numeroVol.isEmpty()) {
-                    throw new IllegalArgumentException("Le champ 'Numero de vol' ne peut pas etre vide.");
-                }
-    
                 System.out.print("Numero de passeport du passager : ");
                 numeroPasseport = scanner.nextLine();
-    
+
                 if (numeroPasseport.isEmpty()) {
                     throw new IllegalArgumentException("Le champ 'Numero de passeport' ne peut pas etre vide.");
                 }
-    
+
                 champsValides = true;
             } catch (IllegalArgumentException e) {
                 System.out.println("Erreur : " + e.getMessage());
             }
         }
-    
-        Vol volSelectionne = null;
-        for (Vol vol : vols) {
-            if (vol.getNumeroVol().equals(numeroVol)) {
-                volSelectionne = vol;
-                break;
-            }
-        }
-    
+
         Passager passagerSelectionne = null;
         for (Passager passager : passagers) {
             if (passager.getNumeroPasseport().equals(numeroPasseport)) {
@@ -465,15 +448,44 @@ public class Main{
                 break;
             }
         }
-    
-        if (volSelectionne == null || passagerSelectionne == null) {
-            System.out.println("Le vol ou le passager specifie n'existe pas. Verifiez les informations saisies.");
+
+        if (passagerSelectionne == null) {
+            System.out.println("Le passager spécifié n'existe pas. Vérifiez les informations saisies.");
         } else {
-            if (volSelectionne.getPassagers().contains(passagerSelectionne)) {
-                volSelectionne.supprimerPassager(passagerSelectionne);
-                System.out.println("Reservation annulee avec succes pour le passager " + passagerSelectionne.getNom() + " sur le vol " + volSelectionne.getNumeroVol() + ".");
+            System.out.println("Liste des vols réservés par le passager " + passagerSelectionne.getNom() + " :");
+            List<Vol> volsReserves = new ArrayList<>();
+            int i = 1;
+            for (Vol vol : vols) {
+                if (vol.getPassagers().contains(passagerSelectionne)) {
+                    volsReserves.add(vol);
+                    System.out.println(i + ". " + vol.getNumeroVol());
+                    i++;
+                }
+            }
+
+            if (volsReserves.isEmpty()) {
+                System.out.println("Le passager n'a effectué aucune réservation.");
             } else {
-                System.out.println("Ce passager n'est pas enregistre sur ce vol.");
+                boolean volValide = false;
+                while (!volValide) {
+                    try {
+                        System.out.print("Entrez le numéro du vol que vous souhaitez annuler : ");
+                        int choix = Integer.parseInt(scanner.nextLine());
+
+                        if (choix < 1 || choix > volsReserves.size()) {
+                            throw new IllegalArgumentException("Numéro de vol invalide.");
+                        }
+
+                        Vol volSelectionne = volsReserves.get(choix - 1);
+                        volSelectionne.supprimerPassager(passagerSelectionne);
+                        System.out.println("Réservation annulée avec succès pour le passager " + passagerSelectionne.getNom() + " sur le vol " + volSelectionne.getNumeroVol() + ".");
+                        volValide = true;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Erreur : Veuillez entrer un numéro valide.");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Erreur : " + e.getMessage());
+                    }
+                }
             }
         }
     }
