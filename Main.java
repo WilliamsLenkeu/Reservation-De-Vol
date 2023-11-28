@@ -1,4 +1,5 @@
 import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -14,6 +15,7 @@ public class Main{
         boolean exit = false;
 
         while (!exit) {
+            clearConsoleWithDelay(800);
             System.out.println("==== Systeme de Reservation de Vols ====");
             System.out.println("1. Enregistrement d'un vol");
             System.out.println("2. Enregistrement d'un passager");
@@ -35,42 +37,41 @@ public class Main{
 
             switch (option) {
                 case 1:
-                    System.out.println();
+                    clearConsoleWithDelay(800);
                     enregistrerVol(scanner);
-                    System.out.println();
                     break;
                 case 2:
-                    System.out.println();
+                    clearConsoleWithDelay(800);
                     enregistrerPassager(scanner);
-                    System.out.println();
+                    
                     break;
                 case 3:
-                    System.out.println();
+                    clearConsoleWithDelay(800);
                     consulterVolsEtPassagers();
-                    System.out.println();
+                    
                     break;
                 case 4:
-                    System.out.println();
+                    clearConsoleWithDelay(800);
                     rechercherVolsDisponibles(scanner);
-                    System.out.println();
+                    
                     break;
                 case 5:
-                    System.out.println();
+                    clearConsoleWithDelay(800);
                     reserverVol(scanner);
-                    System.out.println();
+                    
                     break;
                 case 6:
-                    System.out.println();
+                    clearConsoleWithDelay(800);
                     annulerReservation(scanner);
-                    System.out.println();
+                    
                     break;
                 case 0:
                     exit = true;
                     break;
                 default:
-                    System.out.println();
+                    
                     System.out.println("Option invalide. Veuillez choisir une option valide.");
-                    System.out.println();
+                    
                     break;
             }
         }
@@ -100,7 +101,7 @@ public class Main{
                 }
     
                 if (volExists(numeroVol)) {
-                    throw new IllegalArgumentException("Le numero de vol existe déja.");
+                    throw new IllegalArgumentException("Le numero de vol existe deja.");
                 }
     
                 System.out.print("Compagnie aerienne : ");
@@ -125,7 +126,7 @@ public class Main{
                 Date currentDate = new Date();
     
                 if (dateDepart.compareTo(currentDate) <= 0) {
-                    throw new IllegalArgumentException("La date de depart doit etre ultérieure a la date actuelle.");
+                    throw new IllegalArgumentException("La date de depart doit etre ulterieure a la date actuelle.");
                 }
     
                 boolean heureValide = false;
@@ -239,7 +240,7 @@ public class Main{
                 }
     
                 if (passagerExists(numeroPasseport)) {
-                    throw new IllegalArgumentException("Le numero de passeport existe déja.");
+                    throw new IllegalArgumentException("Le numero de passeport existe deja.");
                 }
     
                 champsValides = true;
@@ -268,7 +269,7 @@ public class Main{
         for (Vol vol : vols) {
             System.out.println("Numero de vol : " + vol.getNumeroVol());
             System.out.println("Compagnie aerienne : " + vol.getCompagnieAerienne());
-            System.out.println("Date de depart : " + vol.getDateDepart());
+            System.out.println("Date de depart : " + formatDate(vol.getDateDepart()));
             System.out.println("Heure de depart : " + vol.getHeureDepart());
             System.out.println("Destination : " + vol.getDestination());
             System.out.println("Passagers :");
@@ -282,6 +283,7 @@ public class Main{
             }
             System.out.println("--------------------");
         }
+        clearConsoleWithDelay(5000);
     }
 
     private static void rechercherVolsDisponibles(Scanner scanner) {
@@ -304,7 +306,7 @@ public class Main{
             } catch (IllegalArgumentException e) {
                 System.out.println("Erreur : " + e.getMessage());
             } catch (Exception e) {
-                System.out.println("Une erreur s'est produite lors de la saisie de la destination. Veuillez réessayer.");
+                System.out.println("Une erreur s'est produite lors de la saisie de la destination. Veuillez reessayer.");
             }
         }
     
@@ -313,9 +315,9 @@ public class Main{
         for (Vol vol : vols) {
             if (vol.getDestination().equalsIgnoreCase(destination)) {
                 System.out.println("Numero de vol : " + vol.getNumeroVol());
-                System.out.println("Compagnie aérienne : " + vol.getCompagnieAerienne());
-                System.out.println("Date de départ : " + formatDate(vol.getDateDepart()));
-                System.out.println("Heure de départ : " + vol.getHeureDepart());
+                System.out.println("Compagnie aerienne : " + vol.getCompagnieAerienne());
+                System.out.println("Date de depart : " + formatDate(vol.getDateDepart()));
+                System.out.println("Heure de depart : " + vol.getHeureDepart());
                 System.out.println("--------------------");
                 found = true;
             }
@@ -323,6 +325,12 @@ public class Main{
         if (!found) {
             System.out.println("Aucun vol disponible pour la destination '" + destination + "'.");
         }
+        clearConsoleWithDelay(5000);
+    }
+
+    private static String formatDate(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        return dateFormat.format(date);
     }
     
     private static void reserverVol(Scanner scanner) {
@@ -350,7 +358,7 @@ public class Main{
         System.out.println("Liste des vols disponibles :");
         for (int i = 0; i < vols.size(); i++) {
             Vol vol = vols.get(i);
-            System.out.println((i + 1) + ": " + vol.getNumeroVol() + " - Destination: " + vol.getDestination() + ", heure de depart: " + vol.getHeureDepart());
+            System.out.println((i + 1) + ": " + vol.getNumeroVol() + " - Destination: " + vol.getDestination() + ",Date de depart : "+ formatDate(vol.getDateDepart())+", heure de depart: " + vol.getHeureDepart());
         }
     
         int choixVol = 0;
@@ -432,9 +440,9 @@ public class Main{
         }
 
         if (passagerSelectionne == null) {
-            System.out.println("Le passager spécifié n'existe pas. Vérifiez les informations saisies.");
+            System.out.println("Le passager specifie n'existe pas. Verifiez les informations saisies.");
         } else {
-            System.out.println("Liste des vols réservés par le passager " + passagerSelectionne.getNom() + " :");
+            System.out.println("Liste des vols reserves par le passager " + passagerSelectionne.getNom() + " :");
             List<Vol> volsReserves = new ArrayList<>();
             int i = 1;
             for (Vol vol : vols) {
@@ -446,24 +454,24 @@ public class Main{
             }
 
             if (volsReserves.isEmpty()) {
-                System.out.println("Le passager n'a effectué aucune réservation.");
+                System.out.println("Le passager n'a effectue aucune reservation.");
             } else {
                 boolean volValide = false;
                 while (!volValide) {
                     try {
-                        System.out.print("Entrez le numéro du vol que vous souhaitez annuler : ");
+                        System.out.print("Entrez le numero du vol que vous souhaitez annuler : ");
                         int choix = Integer.parseInt(scanner.nextLine());
 
                         if (choix < 1 || choix > volsReserves.size()) {
-                            throw new IllegalArgumentException("Numéro de vol invalide.");
+                            throw new IllegalArgumentException("Numero de vol invalide.");
                         }
 
                         Vol volSelectionne = volsReserves.get(choix - 1);
                         volSelectionne.supprimerPassager(passagerSelectionne);
-                        System.out.println("Réservation annulée avec succès pour le passager " + passagerSelectionne.getNom() + " sur le vol " + volSelectionne.getNumeroVol() + ".");
+                        System.out.println("Reservation annulee avec succès pour le passager " + passagerSelectionne.getNom() + " sur le vol " + volSelectionne.getNumeroVol() + ".");
                         volValide = true;
                     } catch (NumberFormatException e) {
-                        System.out.println("Erreur : Veuillez entrer un numéro valide.");
+                        System.out.println("Erreur : Veuillez entrer un numero valide.");
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erreur : " + e.getMessage());
                     }
@@ -471,4 +479,42 @@ public class Main{
             }
         }
     }
+
+    public static void clearConsoleWithDelay(int millis) {
+        System.out.print("Chargement en cours.......");
+    
+        try {
+            Thread.sleep(millis);
+            clearConsole();
+        } catch (InterruptedException e) {
+            
+        }
+    }
+
+    public static void clearConsoleWithDelayAndPrompt() {
+        System.out.println("Appuyez sur une touche pour continuer...");
+
+        try {
+            Scanner scanner = new Scanner(System.in);
+            scanner.nextLine(); // Attendre que l'utilisateur appuie sur une touche
+            scanner.close();
+
+            clearConsole();
+        } catch (Exception e) {
+            // Gerer les exceptions appropriees ici
+        }
+    }
+    
+    public static void clearConsole() {
+        try {
+            if (System.getProperty("os.name").contains("Windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                Runtime.getRuntime().exec("clear");
+            }
+        } catch (Exception e) {
+            // Gerer les exceptions appropriees ici
+        }
+    }
+
 }
