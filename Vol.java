@@ -5,18 +5,27 @@ import java.util.List;
 public class Vol {
     private String numeroVol;
     private String compagnieAerienne;
+    private String destinationDepart;  // Destination de départ
+    private String destinationArrivee;  // Destination d'arrivée
     private Date dateDepart;
     private String heureDepart;
-    private String destination;
-    private List<Passager> passagers;
+    private Date dateArrivee;  // Date d'arrivée
+    private String heureArrivee;  // Heure d'arrivée
+    private int placesDisponibles;  // Nombre de places disponibles
+    private List<Passager> passagers;  // Passagers dans le vol
 
     // Constructeur
-    public Vol(String numeroVol, String compagnieAerienne, Date dateDepart, String heureDepart, String destination) {
+    public Vol(String numeroVol, String compagnieAerienne, String destinationDepart, String destinationArrivee,
+               Date dateDepart, String heureDepart, Date dateArrivee, String heureArrivee, int placesDisponibles) {
         this.numeroVol = numeroVol;
         this.compagnieAerienne = compagnieAerienne;
+        this.destinationDepart = destinationDepart;
+        this.destinationArrivee = destinationArrivee;
         this.dateDepart = dateDepart;
         this.heureDepart = heureDepart;
-        this.destination = destination;
+        this.dateArrivee = dateArrivee;
+        this.heureArrivee = heureArrivee;
+        this.placesDisponibles = placesDisponibles;
         this.passagers = new ArrayList<>();
     }
 
@@ -53,12 +62,44 @@ public class Vol {
         this.heureDepart = heureDepart;
     }
 
-    public String getDestination() {
-        return destination;
+    public String getDestinationDepart() {
+        return destinationDepart;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public void setDestinationDepart(String destinationDepart) {
+        this.destinationDepart = destinationDepart;
+    }
+
+    public String getDestinationArrivee() {
+        return destinationArrivee;
+    }
+
+    public void setDestinationArrivee(String destinationArrivee) {
+        this.destinationArrivee = destinationArrivee;
+    }
+
+    public Date getDateArrivee() {
+        return dateArrivee;
+    }
+
+    public void setDateArrivee(Date dateArrivee) {
+        this.dateArrivee = dateArrivee;
+    }
+
+    public String getHeureArrivee() {
+        return heureArrivee;
+    }
+
+    public void setHeureArrivee(String heureArrivee) {
+        this.heureArrivee = heureArrivee;
+    }
+
+    public int getPlacesDisponibles() {
+        return placesDisponibles;
+    }
+
+    public void setPlacesDisponibles(int placesDisponibles) {
+        this.placesDisponibles = placesDisponibles;
     }
 
     public List<Passager> getPassagers() {
