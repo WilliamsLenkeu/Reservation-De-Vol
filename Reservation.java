@@ -1,8 +1,8 @@
 import java.util.Objects;
 
 public class Reservation {
-    private final int idVol;      // Declare 'idVol' as 'final'
-    private final int idPassager; // Declare 'idPassager' as 'final'
+    private final int idVol;
+    private final int idPassager;
 
     public Reservation(int idVol, int idPassager) {
         this.idVol = idVol;
