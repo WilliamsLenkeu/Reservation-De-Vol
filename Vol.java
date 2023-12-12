@@ -5,14 +5,14 @@ import java.util.List;
 public class Vol {
     private String numeroVol;
     private String compagnieAerienne;
-    private String destinationDepart;  // Destination de départ
-    private String destinationArrivee;  // Destination d'arrivée
+    private String destinationDepart;
+    private String destinationArrivee;
     private Date dateDepart;
     private String heureDepart;
-    private Date dateArrivee;  // Date d'arrivée
-    private String heureArrivee;  // Heure d'arrivée
-    private int placesDisponibles;  // Nombre de places disponibles
-    private List<Passager> passagers;  // Passagers dans le vol
+    private Date dateArrivee;
+    private String heureArrivee;
+    private int placesDisponibles;
+    private List<Passager> passagers;
 
     // Constructeur
     public Vol(String numeroVol, String compagnieAerienne, String destinationDepart, String destinationArrivee,

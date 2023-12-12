@@ -1,9 +1,6 @@
 import java.util.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.sql.*;
 
 public class Main{
@@ -18,14 +15,17 @@ public class Main{
 
         while (!exit) {
             clearConsoleWithDelay(800);
-            System.out.println("==== Systeme de Reservation de Vols ====");
+            System.out.println("======================================");
+            System.out.println("==== Système de Réservation de Vols ===");
+            System.out.println("======================================");
             System.out.println("1. Enregistrement d'un vol");
             System.out.println("2. Enregistrement d'un passager");
-            System.out.println("3. Consultation des vols disponibles et des passagers ayant reserve");
+            System.out.println("3. Consultation des vols disponibles et des passagers ayant réservé");
             System.out.println("4. Recherche des vols disponibles");
-            System.out.println("5. Reservation d'un vol");
-            System.out.println("6. Annulation d'une reservation");
+            System.out.println("5. Réservation d'un vol");
+            System.out.println("6. Annulation d'une réservation");
             System.out.println("0. Quitter");
+            System.out.println("======================================");
             System.out.print("Choisissez une option : ");
 
             int option;
@@ -90,9 +90,9 @@ public class Main{
         String destinationArrivee = "";
         Date dateDepart = null;
         String heureDepart = "";
-        Date dateArrivee = null;  // Nouveau champ
-        String heureArrivee = "";  // Nouveau champ
-        int placesDisponibles = 0;  // Nouveau champ
+        Date dateArrivee = null;  
+        String heureArrivee = "";  
+        int placesDisponibles = 0;  
 
         boolean champsValides = false;
 
@@ -137,7 +137,7 @@ public class Main{
                     throw new IllegalArgumentException("Le champ 'Date de depart' ne peut pas etre vide.");
                 }
 
-                if (!isValidDate(dateDepartStr)) {
+                if (!DateValide(dateDepartStr)) {
                     throw new IllegalArgumentException("Le format de la date est invalide. Veuillez utiliser le format 'jj/mm/aaaa'.");
                 }
 
@@ -176,7 +176,7 @@ public class Main{
                     throw new IllegalArgumentException("Le champ 'Date d'arrivee' ne peut pas etre vide.");
                 }
 
-                if (!isValidDate(dateArriveeStr)) {
+                if (!DateValide(dateArriveeStr)) {
                     throw new IllegalArgumentException("Le format de la date d'arrivee est invalide. Veuillez utiliser le format 'jj/mm/aaaa'.");
                 }
 
@@ -199,7 +199,7 @@ public class Main{
         }
 
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            connection.setAutoCommit(false); // Disable auto-commit to manage transactions
+            connection.setAutoCommit(false);
 
             try {
                 String insertSql = "INSERT INTO Vols (numeroVol, compagnieAerienne, destinationDepart, destinationArrivee, dateDepart, heureDepart, dateArrivee, heureArrivee, placesDisponibles) " +
@@ -249,7 +249,7 @@ public class Main{
         }
         return false;
     }
-    private static boolean isValidDate(String dateStr) {
+    private static boolean DateValide(String dateStr) {
         try {
             String[] parts = dateStr.split("/");
             int day = Integer.parseInt(parts[0]);
@@ -308,7 +308,7 @@ public class Main{
                     throw new IllegalArgumentException("Le champ 'Numero de passeport' ne peut pas etre vide.");
                 }
 
-                if (passagerExists(numeroPasseport)) {
+                if (passagerExiste(numeroPasseport)) {
                     throw new IllegalArgumentException("Le numero de passeport existe deja.");
                 }
 
@@ -339,7 +339,7 @@ public class Main{
             System.out.println("Erreur lors de la connexion a la base de donnees : " + e.getMessage());
         }
     }
-    private static boolean passagerExists(String numeroPasseport) {
+    private static boolean passagerExiste(String numeroPasseport) {
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
             String selectSql = "SELECT id FROM Passagers WHERE numeroPasseport = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(selectSql)) {
@@ -466,8 +466,6 @@ public class Main{
         } catch (SQLException e) {
             System.out.println("Erreur lors de la connexion à la base de données : " + e.getMessage());
         }
-
-        clearConsoleWithDelay(5000);
     }
     private static String formatDate(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -490,8 +488,13 @@ public class Main{
                 }
 
                 // Vérifier si le passager existe dans la base de données
-                if (!passagerExists(numeroPasseport)) {
+                if (!passagerExiste(numeroPasseport)) {
                     throw new IllegalArgumentException("Le passager avec le numéro de passeport spécifié n'existe pas dans la base de données.");
+                }
+
+                // Vérifier si le passager a déjà réservé le vol
+                if (VerfiPassagerReservation(numeroPasseport)) {
+                    throw new IllegalArgumentException("Le passager a déjà réservé un vol.");
                 }
 
                 champsValides = true;
@@ -500,6 +503,8 @@ public class Main{
             }
         }
 
+        // ...
+        int volCount = 0;
         System.out.println("Liste des vols disponibles :");
 
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
@@ -507,15 +512,18 @@ public class Main{
             String selectVolsSql = "SELECT * FROM Vols";
             try (PreparedStatement selectVolsStatement = connection.prepareStatement(selectVolsSql)) {
                 try (ResultSet volsResultSet = selectVolsStatement.executeQuery()) {
+                    volCount = 1; // Utilisé pour numéroter les vols
                     boolean found = false;
                     while (volsResultSet.next()) {
-                        System.out.println("Numero de vol : " + volsResultSet.getString("numeroVol"));
-                        System.out.println("Compagnie aerienne : " + volsResultSet.getString("compagnieAerienne"));
-                        System.out.println("Date de depart : " + formatDate(volsResultSet.getDate("dateDepart")));
-                        System.out.println("Heure de depart : " + volsResultSet.getString("heureDepart"));
-                        System.out.println("Date d'arrivée : " + formatDate(volsResultSet.getDate("dateArrivee")));
-                        System.out.println("Heure d'arrivée : " + volsResultSet.getString("heureArrivee"));
+                        System.out.println(volCount + ". Vol " + volsResultSet.getString("numeroVol"));
+                        System.out.println("   Compagnie aérienne : " + volsResultSet.getString("compagnieAerienne"));
+                        System.out.println("   Date de départ : " + formatDate(volsResultSet.getDate("dateDepart")));
+                        System.out.println("   Heure de départ : " + volsResultSet.getString("heureDepart"));
+                        System.out.println("   Date d'arrivée : " + formatDate(volsResultSet.getDate("dateArrivee")));
+                        System.out.println("   Heure d'arrivée : " + volsResultSet.getString("heureArrivee"));
+                        System.out.println("   Places restantes : " + volsResultSet.getInt("placesDisponibles"));
                         System.out.println("--------------------");
+                        volCount++;
                         found = true;
                     }
                     if (!found) {
@@ -529,14 +537,13 @@ public class Main{
 
             while (!volValide) {
                 try {
-                    System.out.print("Choisissez un numero de vol : ");
+                    System.out.print("Choisissez un numéro de vol : ");
                     choixVol = Integer.parseInt(scanner.nextLine());
 
                     // Vérifier si le numéro de vol est valide
-                    if (choixVol < 1 || choixVol > vols.size()) {
-                        throw new IllegalArgumentException("Numero de vol invalide. Veuillez choisir un numero valide.");
+                    if (choixVol < 1 || choixVol >= volCount) {
+                        throw new IllegalArgumentException("Numéro de vol invalide. Veuillez choisir un numéro valide.");
                     }
-
                     volValide = true;
                 } catch (NumberFormatException e) {
                     System.out.println("Erreur : Veuillez entrer un nombre valide.");
@@ -547,20 +554,29 @@ public class Main{
 
             // Réserver le vol dans la base de données
             try {
-                String insertReservationSql = "INSERT INTO Reservations (idVol, idPassager) VALUES (?, " +
-                        "(SELECT id FROM Passagers WHERE numeroPasseport = ?))";
+                // Vérifier le nombre de places disponibles
+                int placesDisponibles = getPlacesLibresDuVols(connection, choixVol);
+                if (placesDisponibles > 0) {
+                    String insertReservationSql = "INSERT INTO Reservations (idVol, idPassager) VALUES (?, " +
+                            "(SELECT id FROM Passagers WHERE numeroPasseport = ?))";
 
-                try (PreparedStatement preparedStatement = connection.prepareStatement(insertReservationSql)) {
-                    preparedStatement.setInt(1, choixVol);
-                    preparedStatement.setString(2, numeroPasseport);
+                    try (PreparedStatement preparedStatement = connection.prepareStatement(insertReservationSql)) {
+                        preparedStatement.setInt(1, choixVol);
+                        preparedStatement.setString(2, numeroPasseport);
 
-                    int rowsAffected = preparedStatement.executeUpdate();
-                    if (rowsAffected > 0) {
-                        System.out.println("Reservation effectuée avec succès pour le passager avec le numéro de passeport " + numeroPasseport +
-                                " sur le vol numéro " + choixVol + ".");
-                    } else {
-                        System.out.println("Erreur lors de la réservation du vol.");
+                        int rowsAffected = preparedStatement.executeUpdate();
+                        if (rowsAffected > 0) {
+                            // Mettre à jour le nombre de places disponibles après la réservation
+                            updatePlaceDisponible(connection, choixVol, placesDisponibles - 1);
+
+                            System.out.println("Réservation effectuée avec succès pour le passager avec le numéro de passeport " + numeroPasseport +
+                                    " sur le vol numéro " + choixVol + ".");
+                        } else {
+                            System.out.println("Erreur lors de la réservation du vol.");
+                        }
                     }
+                } else {
+                    System.out.println("Désolé, il n'y a plus de places disponibles pour ce vol.");
                 }
             } catch (SQLException e) {
                 System.out.println("Erreur lors de la réservation du vol : " + e.getMessage());
@@ -568,8 +584,59 @@ public class Main{
         } catch (SQLException e) {
             System.out.println("Erreur lors de la connexion à la base de données : " + e.getMessage());
         }
+    }
+    private static boolean VerfiPassagerReservation(String numeroPasseport) {
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            String selectSql = "SELECT COUNT(*) FROM Reservations " +
+                    "JOIN Passagers ON Reservations.idPassager = Passagers.id " +
+                    "WHERE Passagers.numeroPasseport = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(selectSql)) {
+                preparedStatement.setString(1, numeroPasseport);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        int count = resultSet.getInt(1);
+                        return count > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la vérification de la réservation du passager : " + e.getMessage());
+        }
+        return false;
+    }
+    private static int getPlacesLibresDuVols(Connection connection, int volId) {
+        try {
+            String selectSql = "SELECT placesDisponibles FROM Vols WHERE id = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(selectSql)) {
+                preparedStatement.setInt(1, volId);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        return resultSet.getInt("placesDisponibles");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la récupération du nombre de places disponibles pour le vol : " + e.getMessage());
+        }
+        return 0;
+    }
+    private static void updatePlaceDisponible(Connection connection, int volId, int newAvailableSeats) {
+        try {
+            String updateSql = "UPDATE Vols SET placesDisponibles = ? WHERE id = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(updateSql)) {
+                preparedStatement.setInt(1, newAvailableSeats);
+                preparedStatement.setInt(2, volId);
 
-        clearConsoleWithDelay(5000);
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Nombre de places disponibles mis à jour avec succès.");
+                } else {
+                    System.out.println("Erreur lors de la mise à jour du nombre de places disponibles.");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur lors de la mise à jour du nombre de places disponibles pour le vol : " + e.getMessage());
+        }
     }
     private static void annulerReservation(Scanner scanner) {
         System.out.println("==== Annulation d'une reservation ====");
@@ -686,7 +753,7 @@ public class Main{
         return reservations;
     }
     public static void clearConsoleWithDelay(int millis) {
-        System.out.print("Chargement en cours.......");
+        System.out.println("Chargement en cours.......");
     
         try {
             Thread.sleep(millis);
