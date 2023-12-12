@@ -7,6 +7,16 @@ public class Main{
     private static final String DB_URL = "jdbc:mysql://localhost:3306/reservationVol";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
+    private static  final Connection connection;
+
+    static {
+        try {
+            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static List<Vol> vols = new ArrayList<>();
     private static List<Passager> passagers = new ArrayList<>();
     public static void main(String[] args) {
@@ -14,7 +24,7 @@ public class Main{
         boolean exit = false;
 
         while (!exit) {
-            clearConsoleWithDelay(800);
+            
             System.out.println("======================================");
             System.out.println("==== Système de Réservation de Vols ===");
             System.out.println("======================================");
@@ -39,31 +49,31 @@ public class Main{
 
             switch (option) {
                 case 1:
-                    clearConsoleWithDelay(800);
+                    
                     enregistrerVol(scanner);
                     break;
                 case 2:
-                    clearConsoleWithDelay(800);
+                    
                     enregistrerPassager(scanner);
 
                     break;
                 case 3:
-                    clearConsoleWithDelay(800);
+                    
                     consulterVolsEtPassagers();
 
                     break;
                 case 4:
-                    clearConsoleWithDelay(800);
+                    
                     rechercherVolsDisponibles(scanner);
 
                     break;
                 case 5:
-                    clearConsoleWithDelay(800);
+                    
                     reserverVol(scanner);
 
                     break;
                 case 6:
-                    clearConsoleWithDelay(800);
+                    
                     annulerReservation(scanner);
 
                     break;
@@ -90,9 +100,9 @@ public class Main{
         String destinationArrivee = "";
         Date dateDepart = null;
         String heureDepart = "";
-        Date dateArrivee = null;  
-        String heureArrivee = "";  
-        int placesDisponibles = 0;  
+        Date dateArrivee = null;
+        String heureArrivee = "";
+        int placesDisponibles = 0;
 
         boolean champsValides = false;
 
@@ -198,7 +208,7 @@ public class Main{
             }
         }
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             connection.setAutoCommit(false);
 
             try {
@@ -233,7 +243,7 @@ public class Main{
         }
     }
     private static boolean volExists(String numeroVol) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             String sql = "SELECT COUNT(*) FROM Vols WHERE numeroVol = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setString(1, numeroVol);
@@ -318,7 +328,7 @@ public class Main{
             }
         }
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             // Prepare SQL statement for inserting data into Passagers table
             String insertSql = "INSERT INTO Passagers (nom, adresse, numeroPasseport) " +
                     "VALUES (?, ?, ?)";
@@ -340,7 +350,7 @@ public class Main{
         }
     }
     private static boolean passagerExiste(String numeroPasseport) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             String selectSql = "SELECT id FROM Passagers WHERE numeroPasseport = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(selectSql)) {
                 preparedStatement.setString(1, numeroPasseport);
@@ -355,7 +365,7 @@ public class Main{
         }
     }
     private static void consulterVolsEtPassagers() {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             String selectVolsSql = "SELECT * FROM Vols";
             try (PreparedStatement selectVolsStatement = connection.prepareStatement(selectVolsSql)) {
                 try (ResultSet volsResultSet = selectVolsStatement.executeQuery()) {
@@ -441,7 +451,7 @@ public class Main{
             }
         }
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             String selectVolsSql = "SELECT * FROM Vols WHERE destinationArrivee LIKE ?";
             try (PreparedStatement selectVolsStatement = connection.prepareStatement(selectVolsSql)) {
                 selectVolsStatement.setString(1, "%" + destination + "%");
@@ -507,7 +517,7 @@ public class Main{
         int volCount = 0;
         System.out.println("Liste des vols disponibles :");
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             // Sélectionner les vols disponibles depuis la base de données
             String selectVolsSql = "SELECT * FROM Vols";
             try (PreparedStatement selectVolsStatement = connection.prepareStatement(selectVolsSql)) {
@@ -586,7 +596,7 @@ public class Main{
         }
     }
     private static boolean VerfiPassagerReservation(String numeroPasseport) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             String selectSql = "SELECT COUNT(*) FROM Reservations " +
                     "JOIN Passagers ON Reservations.idPassager = Passagers.id " +
                     "WHERE Passagers.numeroPasseport = ?";
@@ -660,7 +670,7 @@ public class Main{
             }
         }
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+        try (connection) {
             List<Reservation> reservations = getReservationsForPassager(connection, numeroPasseport);
 
             if (reservations.isEmpty()) {
