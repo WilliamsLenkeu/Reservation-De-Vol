@@ -4,7 +4,7 @@ import java.util.*;
 import java.sql.*;
 
 public class Main{
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/reservationVol";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/bd_reservation_vols";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "";
     private static  final Connection connection;
